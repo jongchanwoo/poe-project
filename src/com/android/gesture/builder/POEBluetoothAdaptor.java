@@ -9,6 +9,7 @@ import java.util.UUID;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.util.Log;
 
 
 public class POEBluetoothAdaptor {
@@ -19,8 +20,8 @@ public class POEBluetoothAdaptor {
 	String bluetooth_name;
 	BluetoothDevice connected_device;
 	BluetoothSocket mSocket;
-	InputStream mInputStream;
-	OutputStream mOutputStream;
+	private InputStream mInputStream;
+	private OutputStream mOutputStream;
 	
 	public POEBluetoothAdaptor() {
 		bluetooth = BluetoothAdapter.getDefaultAdapter();
@@ -69,7 +70,10 @@ public class POEBluetoothAdaptor {
 	
 	public void send(int[] toArduino) throws IOException {
 		UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb"); //Standard SerialPortService ID
-        mSocket = connected_device.createRfcommSocketToServiceRecord(uuid);
+        if (connected_device != null) {
+        	
+        }
+		mSocket = connected_device.createRfcommSocketToServiceRecord(uuid);
         mSocket.connect();
         mOutputStream = mSocket.getOutputStream();
         //mInputStream = mSocket.getInputStream();
@@ -78,6 +82,11 @@ public class POEBluetoothAdaptor {
         for (int i = 0; i < toArduino.length; i++) {
         	bytetoArduino[i] = (byte) toArduino[i];
         }
-        mOutputStream.write(bytetoArduino);
+        try {
+        	mOutputStream.write(bytetoArduino);
+        } catch (IOException e) {
+            Log.d("bluetooth", "...Error data send: " + e.getMessage() + "...");     
+          }
+        
 	}
 }
